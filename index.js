@@ -232,15 +232,16 @@ function changeRoom(newRoom) {
 
 async function play() {
   const welcomeMessage = `Dorum's Castle of The Undying.
-  OUTSIDE. 
+OUTSIDE. 
 Woah. Wait, how did I get here again?
 You are standing in front of Dorum's castle doors.
 There is a ivory dagger stabbed into the elegant wooden doors.
 Pinned between the dagger and the door is a handwritten flyer.`;
-  let answer = await ask(`${welcomeMessage}\n>_ `);
+  let answer = await ask(`${welcomeMessage}\nWhat would you like to do?\n>_ `);
   while (
     ![
       "read flyer",
+      "inventory",
       "enter outside",
       "take flyer",
       "enter foyer",
@@ -262,7 +263,6 @@ Pinned between the dagger and the door is a handwritten flyer.`;
     ].includes(answer)
   ) {
     console.log(`Sorry, I don't know what that means`);
-    answer = await ask(">_ ");
   }
   if (answer === "read flyer") {
     console.log(`${flyer.inspect()}`);
@@ -275,16 +275,14 @@ Pinned between the dagger and the door is a handwritten flyer.`;
   if (answer === "enter foyer") {
     changeRoom("foyer");
     answer = await ask(">_ ");
-  } else {
+  }
+  if (answer === "take pamphlet") {
+    inventory.push("pamphlet");
+    console.log("You've added the pamphlet to your inventory.");
     answer = await ask(">_ ");
   }
 }
 
-play();
-
-// if (answer === "take pamphlet") {
-//   inventory.push("pamphlet");
-//   console.log("You've added the pamphlet to your inventory.");
 // }
 // if (answer === "take soda") {
 //   inventory.push("soda");
