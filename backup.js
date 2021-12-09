@@ -234,73 +234,101 @@ function changeRoom(newRoom) {
 
 async function play() {
   console.log(
-    "...\nACTION WORDS: TAKE, READ, ENTER, UNLOCK, KILL, DRINK, USE, INVENTORY.\n..."
+    "...\nACTION WORDS: TAKE, READ, ENTER, UNLOCK, KILL, DRINK, INVENTORY.\n..."
   );
-  // List of alloted action words to give player ease of game play
+  
+// List of alloted action words to give player ease of playing
+
   const welcomeMessage = `Dorum's Castle of The Undying.
-OUTSIDE. 
+  OUTSIDE. 
 Woah. Wait, how did I get here again?
 You are standing in front of Dorum's castle doors.
 There is a ivory dagger stabbed into the elegant wooden doors.
 Pinned between the dagger and the door is a handwritten flyer.`;
-  let answer = await ask(`${welcomeMessage}\nWhat would you like to do?\n>_ `);
-  while (
-    ![
-      "read flyer",
-      "inventory",
-      "enter outside",
-      "take flyer",
-      "enter foyer",
-      "take pamphlet",
-      "read pamphlet",
-      "drop pamphlet",
-      "enter kitchen",
-      "enter basement",
-      "enter upstairs",
-      "inventory",
-      "take soda",
-      "drink soda",
-      "take key",
-      "enter armory",
-      "take dagger",
-      "enter roof",
-      "kill dragon",
-      "give soda",
-    ].includes(answer)
-  ) {
-    console.log(`Sorry, I don't know what that means`);
+  let answer = await ask(`${welcomeMessage}\n>_ `);
   }
-  if (answer === "read flyer") {
-    console.log(`${flyer.inspect()}`);
-    answer = await ask(">_ ");
-  }
-  if (answer === "take flyer") {
-    console.log(`The dagger has the note wedged too securely to the door.`);
-    answer = await ask(">_ ");
-  }
-  if (answer === "enter foyer") {
-    changeRoom("foyer");
-    answer = await ask(">_ ");
-  }
-  if (answer === "take pamphlet") {
-    inventory.push("pamphlet");
-    console.log("You've added the pamphlet to your inventory.");
-    answer = await ask(">_ ");
-  }
-  //This returns them to the top!
-  // return play();
-}
 
-// }
-// if (answer === "take soda") {
-//   inventory.push("soda");
-//   console.log("You've added the soda to your inventory.");
-// }
-// if (answer === "take key") {
-//   inventory.push("key");
-//   console.log("You've added the key to your inventory.");
-// }
-// if (answer === "take dagger") {
-//   inventory.push("dagger");
-//   console.log("You've added the dagger to your inventory.");
-// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //   while (
+//     ![
+//       "read flyer",
+//       "enter outside",
+//       "take flyer",
+//       "enter foyer",
+//       "take pamphlet",
+//       "read pamphlet",
+//       "drop pamphlet",
+//       "enter kitchen",
+//       "enter basement",
+//       "enter upstairs",
+//       "inventory",
+//       "take soda",
+//       "drink soda",
+//       "take key",
+//       "enter armory",
+//       "take dagger",
+//       "take sword",
+//       "enter roof",
+//       "kill dragon",
+//       "give soda",
+//     ].includes(answer)
+//   ) {
+//     console.log(`Sorry, I don't know what that means`);
+//     answer = await ask(">_ ");
+//   }
+//   if (answer === "take dagger") {
+//     console.log("The dagger is stabbed to deep to remove. Get stronger scrub.");
+//     answer = await ask(">_ ");
+//   }
+//   if (answer === "read flyer") {
+//     console.log(`${flyer.inspect()}`);
+//     answer = await ask(">_ ");
+//   }
+//   if (answer === "take flyer") {
+//     console.log(`The dagger has the note wedged too securely to the door.`);
+//     answer = await ask(">_ ");
+//   }
+//   if (answer === "enter foyer") {
+//     changeRoom("foyer");
+//     answer = await ask(">_ ");
+//     console.log(newRoom + "287");
+//   }
+//   if (answer === "enter basement") {
+//     changeRoom("basement");
+//     answer = await ask(">_ ");
+//   }
+//   if (answer === "enter kitchen") {
+//     changeRoom("kitchen");
+//     answer = await ask(">_ ");
+//   }
+//   if (answer === "enter upstairs") {
+//     changeRoom("upstairs");
+//     answer = await ask(">_ ");
+//   }
+//   if (answer === "enter roof") {
+//     changeRoom("roof");
+//     answer = await ask(">_ ");
+//   }
+//   if (answer === "enter outside") {
+//     changeRoom("outside");
+//     answer = await ask(">_ ");
+//   }
+//   if (answer === "enter armory") {
+//     changeRoom("armory");
+//   } else {
+//     answer = await ask(">_ ");
+//   }
