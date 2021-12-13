@@ -271,6 +271,7 @@ Hmmm, What should I do?`
 );
 
 async function play() {
+  //being play function
   let userAction = await ask(">_ ");
 
   let inputArray = userAction.toLowerCase().split(" ");
@@ -278,7 +279,7 @@ async function play() {
   let action = inputArray[0];
 
   let target = inputArray.slice(1).join(" ");
-
+  //list of conditionals that coincide with the allowed play words
   if (action === "use") {
     console.log(lookupTable[target].use());
   } else if (action === "take") {
