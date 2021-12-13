@@ -1,3 +1,4 @@
+const { lookup } = require("dns");
 const { userInfo } = require("os");
 const readline = require("readline");
 const readlineInterface = readline.createInterface(
@@ -11,10 +12,7 @@ function ask(questionText) {
   });
 }
 
-play();
-
-//Below is the establishing code for the inventory
-
+//player inventory structured as an array
 let inventory = [];
 
 class Item {
@@ -24,25 +22,54 @@ class Item {
     this.action = action || "nothing happened";
     this.takeable = takeable || false;
   }
-  inspect() {
-    return this.description;
-  }
+
+  //take function, add item to inventory
   take() {
     if (this.takeable) {
       inventory.push(this.name);
-      return `you picked up ${this.name}`;
+      return `you picked up ${this.name}
+      ${this.description}`;
     } else {
       return `you can't take that!`;
     }
   }
+
+  //inspect function
+  inspect() {
+    return this.description;
+  }
+
+  //use function
+  //usable items: key, soda, sword
   use() {
-    if (this.name === "key" && inventory.includes("key")) {
-      return `You unlocked the door, the roof is now accessible.`;
+    if (
+      this.name === "soda" &&
+      startPoint === "roof" &&
+      inventory.includes("soda")
+    ) {
+      return `You offer the dragon the soda. He drinks it with one big gulp & lets out a fiery burp...
+      ${process.exit()}`;
+    } else if (
+      this.name === "sword" &&
+      startPoint === "roof" &&
+      inventory.includes("sword")
+    ) {
+      return `...${process.exit()};`;
     } else {
       return this.action;
     }
   }
+
+  unlock() {
+    if (startPoint === "upstairs" && inventory.includes("key")) {
+      return `You unlocked the door, the roof is now accessible.`;
+    } else {
+      return `This door is locked!`;
+    }
+  }
 }
+
+//item constructor: name, description, action, takeable
 
 let flyer = new Item(
   "flyer",
@@ -96,7 +123,7 @@ let door = new Item(
   false
 );
 
-let itemTable = {
+let lookupTable = {
   flyer: flyer,
   pamphlet: pamphlet,
   soda: soda,
@@ -105,51 +132,55 @@ let itemTable = {
   door: door,
 };
 
+//room constructor, give room description, what items it holds and what room it can transition to
 class Room {
-  constructor(description, item, validInput) {
+  constructor(description, item, transitions) {
     this.description = description;
     this.item = item;
-    this.validInput = validInput;
+    this.transitions = transitions;
   }
   description() {
     return this.description;
   }
+  //enter function lets players move between valid rooms and give error if player makes a invalid room change
+  enter(newRoom) {
+    if (this.transitions.includes(newRoom)) {
+      startPoint = newRoom;
+      return `You've entered the ${newRoom}.\n${roomTable[newRoom].description}`;
+    } else {
+      return `Not a valid room change: ${startPoint} to ${newRoom}.`;
+    }
+  }
 }
 
+//list of room made with class constructor
 let outside = new Room(
-  `DORUM'S CASTLE OF THE UNDYING.
+  `------------------------
+  DORUM'S CASTLE OF THE UNDYING.
 Woah, how did I get here again?
 You are standing in front of Dorum's castle doors.
 There is this minor heat radiating from the top of the castle.
-An ivory dagger is stabbed into the elegant wooden doors.
-Pinned between the dagger and the door is a handwritten flyer.`,
+A blood-stained flyer is pinned into the elegant wooden doors.`,
   "flyer",
-  ["read flyer", "enter foyer", "take flyer", "inventory"]
+  ["foyer"]
 );
 
 let foyer = new Room(
-  `DORUM'S FOYER.
+  `------------------------
+  DORUM'S FOYER.
 You enter Dorum's Foyer. Why does this room feel familiar?
-A wrinkled pamphlet lies near a garbage pal.
+A bunch of wrinkled pamphlets lie near a garbage pal.
 To the left is a door labeled "BASEMENT,
 On the right is a door labeled "KITCHEN",
 Straight ahead is a chute that's labeled "UPSTAIRS".
 Hmmm, where to first.....`,
   "pamphlet",
-  [
-    "take pamphlet",
-    "read pamphlet",
-    "drop pamphlet",
-    "enter kitchen",
-    "enter basement",
-    "enter upstairs",
-    "inventory",
-    "drink soda",
-  ]
+  ["outside", "basement", "kitchen", "upstairs"]
 );
 
 let basement = new Room(
-  `BASEMENT.
+  `------------------------
+  BASEMENT.
 *COUGH*
 Boy it sure is dusty. Hmm, there isn't much down here.
 Doesn't seem like theres any other places to go from here.
@@ -157,48 +188,64 @@ A skeleton in clothing is sat on a chair. I wonder what
 his story is.
 A key on a necklace sits on his neck.`,
   "key",
-  ["take key", "inventory", "enter foyer", "drink soda"]
+  ["foyer"]
 );
 
 let kitchen = new Room(
-  `KITCHEN.
+  `------------------------
+  KITCHEN.
 Oh boy, it reeks of spoiled meats. 
 Is that *sniff* kangaroo? Aardvark? Honey Badger?
 Doesn't seem like theres any other places to go from here.
 The cabinet is open and a single soda can remains.`,
   "soda",
-  ["take soda", "drink soda", "enter foyer", "inventory"]
+  ["foyer"]
 );
 
 let upstairs = new Room(
-  `UPSTAIRS.
-A long corridor.
+  `------------------------
+  UPSTAIRS.
+A long hallway.
 to the right is a door labeled "ARMORY".
 Straight ahead is the door that leads to the roof.`,
   "door",
-  ["enter roof", "enter armory", "inventory"]
+  ["roof", "armory", "foyer"]
 );
 
 let armory = new Room(
-  `THE ARMORY.
+  `------------------------
+  THE ARMORY.
 The armory is picked clean.
 Doesn't seem like theres any other places to go from here.
 Only one item remains. It can't be...It's Dorum's Sword!
 Legend says this sword is known to send you back in time if you die within its range.
-A second chance at life doesn't sound life a bad thing... `,
+A second chance at life doesn't sound life a bad thing... 
+The door leading back is labeled "HALLWAY".`,
   "dagger",
-  ["take sword", "inventory", "enter upstairs"]
+  ["hallway"]
 );
 
 let roof = new Room(
-  `THE ROOF.
+  `------------------------
+  THE ROOF.
 There his is: THE DRAGON!!
 The heat coming off of him is intense. Sweat forms on your brow.
 What will you do brave warrior?`,
   "dragon",
-  []
+  ["upstairs"]
 );
 
+let hallway = new Room(
+  `------------------------
+  HALLWAY.
+  To the right is the door to the roof,
+  to the left leads back to the foyer.
+  Hmmmm, I hope I checked all the rooms...`,
+  undefined,
+  ["roof", "armory", "foyer"]
+);
+
+//room lookup table
 let roomTable = {
   outside: outside,
   foyer: foyer,
@@ -207,100 +254,54 @@ let roomTable = {
   upstairs: upstairs,
   armory: armory,
   roof: roof,
+  hallway: hallway,
 };
 
+//player start point
 let startPoint = "outside";
 
-let transitions = {
-  outside: ["foyer"],
-  foyer: ["basement", "kitchen", "upstairs"],
-  basement: ["foyer"],
-  kitchen: ["foyer"],
-  upstairs: ["foyer", "armory", "roof"],
-  armory: ["upstairs"],
-  roof: ["upstairs"],
-};
-
-function changeRoom(newRoom) {
-  if (transitions[startPoint].includes(newRoom)) {
-    startPoint = newRoom;
-    console.log(
-      `You've entered the ${newRoom}.\n${roomTable[newRoom].description}`
-    );
-  } else {
-    console.log(`Not a valid room change: ${startPoint} to ${newRoom}.`);
-  }
-}
-
-async function play() {
-  console.log(
-    "...\nACTION WORDS: TAKE, READ, ENTER, UNLOCK, KILL, DRINK, USE, INVENTORY.\n..."
-  );
-  // List of alloted action words to give player ease of game play
-  const welcomeMessage = `Dorum's Castle of The Undying.
+// List of alloted action words to give player ease of game play
+console.log(
+  `...\nACTION WORDS: TAKE, INSPECT, ENTER, UNLOCK, USE, INVENTORY.\n...\nDorum's Castle of The Undying.
 OUTSIDE. 
 Woah. Wait, how did I get here again?
 You are standing in front of Dorum's castle doors.
-There is a ivory dagger stabbed into the elegant wooden doors.
-Pinned between the dagger and the door is a handwritten flyer.`;
-  let answer = await ask(`${welcomeMessage}\nWhat would you like to do?\n>_ `);
-  while (
-    ![
-      "read flyer",
-      "inventory",
-      "enter outside",
-      "take flyer",
-      "enter foyer",
-      "take pamphlet",
-      "read pamphlet",
-      "drop pamphlet",
-      "enter kitchen",
-      "enter basement",
-      "enter upstairs",
-      "inventory",
-      "take soda",
-      "drink soda",
-      "take key",
-      "enter armory",
-      "take dagger",
-      "enter roof",
-      "kill dragon",
-      "give soda",
-    ].includes(answer)
-  ) {
-    console.log(`Sorry, I don't know what that means`);
+A blood-stained flyer is pinned into the elegant wooden doors...
+Hmmm, What should I do?`
+);
+
+async function play() {
+  let userAction = await ask(">_ ");
+
+  let inputArray = userAction.toLowerCase().split(" ");
+
+  let action = inputArray[0];
+
+  let target = inputArray.slice(1).join(" ");
+
+  if (action === "use") {
+    console.log(lookupTable[target].use());
+  } else if (action === "take") {
+    if (lookupTable[target] instanceof Item) {
+      console.log(lookupTable[target].take());
+    } else {
+      console.log(lookupTable[target].take());
+      console.log("You cannot take that.");
+    }
+  } else if (action === "inspect") {
+    console.log(lookupTable[target].description);
+  } else if (action === "enter") {
+    console.log(roomTable[startPoint].enter(target));
+  } else if (action === "inventory") {
+    console.log(inventory);
+  } else if (action === "use soda") {
+    process.exit();
+  } else if (action === "inventory") {
+    console.log(inventory);
+  } else {
+    console.log(`I dont know how to ${userAction}`);
   }
-  if (answer === "read flyer") {
-    console.log(`${flyer.inspect()}`);
-    answer = await ask(">_ ");
-  }
-  if (answer === "take flyer") {
-    console.log(`The dagger has the note wedged too securely to the door.`);
-    answer = await ask(">_ ");
-  }
-  if (answer === "enter foyer") {
-    changeRoom("foyer");
-    answer = await ask(">_ ");
-  }
-  if (answer === "take pamphlet") {
-    inventory.push("pamphlet");
-    console.log("You've added the pamphlet to your inventory.");
-    answer = await ask(">_ ");
-  }
-  //This returns them to the top!
-  // return play();
+  return play();
 }
 
-// }
-// if (answer === "take soda") {
-//   inventory.push("soda");
-//   console.log("You've added the soda to your inventory.");
-// }
-// if (answer === "take key") {
-//   inventory.push("key");
-//   console.log("You've added the key to your inventory.");
-// }
-// if (answer === "take dagger") {
-//   inventory.push("dagger");
-//   console.log("You've added the dagger to your inventory.");
-// }
+play();

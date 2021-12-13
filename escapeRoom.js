@@ -1,4 +1,3 @@
-const { lookup } = require("dns");
 const readline = require("readline");
 const rlInterface = readline.createInterface(process.stdin, process.stdout);
 
@@ -95,7 +94,7 @@ async function play() {
   let action = inputArray[0];
 
   let target = inputArray.slice(1).join(" ");
-
+  //use
   if (action === "use") {
     console.log(lookupTable[target].use());
   } else if (action === "take") {
@@ -105,8 +104,10 @@ async function play() {
       console.log(lookupTable[target] instanceof Item);
       console.log("That is not an item");
     }
+    //examine
   } else if (action === "examine") {
     console.log(lookupTable[target].description);
+    //leave
   } else if (action === "leave") {
     if (inventory.includes("largekey")) {
       console.log("You open the door and are free!");
